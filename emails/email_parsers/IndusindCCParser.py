@@ -13,6 +13,9 @@ class IndusindCCParser(BaseEmailParser):
             return
 
         result = re.findall("Card\sending\s(.+?)\sfor\sINR(.+?)\son\s(.+?)\sat\s(.+?)\sis\s(.+?)\.", email)
+        if len(result) == 0:
+            result = re.findall("Card\sending\s(.+?)\sfor\sINR\s(.+?)on\s(.+?)\sat\s(.+?)\sis\s(.+?)\.", email)
+
         card_number = result[0][0]
         amount = int(float(result[0][1].replace(',', '')) * 100)
         merchant = result[0][3]
