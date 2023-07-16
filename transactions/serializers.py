@@ -36,3 +36,9 @@ class AddTransactionSerializer(serializers.ModelSerializer):
     #     if not Card.objects.filter(id=value, user=self.context["request"].user).exists():
     #         raise serializers.ValidationError("Card does not exist")
     #     return value
+
+
+class TransactionInfoSerializer(serializers.Serializer):
+    debit = serializers.DecimalField(max_digits=10, decimal_places=2, min_value=0)
+    credit = serializers.DecimalField(max_digits=10, decimal_places=2, min_value=0)
+    balance = serializers.DecimalField(max_digits=10, decimal_places=2)

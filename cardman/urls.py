@@ -24,4 +24,5 @@ urlpatterns = [
     path('banks/', include('banks.urls')),
     path('transactions/', include('transactions.urls')),
     path('emails/', include('emails.urls')),
+    path('api-auth/', include('custom_token.urls'))
 ]
