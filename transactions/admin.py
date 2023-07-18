@@ -4,7 +4,7 @@ from .models import Transaction
 
 
 class TransactionsAdmin(admin.ModelAdmin):
-    list_display = ('amount_in_paise', 'transaction_type', 'merchant', 'card', 'time')
+    list_display = ('amount_in_paise', 'transaction_type', 'platform', 'card', 'time')
     list_filter = ('card__card_number', 'card__bank__name', 'transaction_type')
 
 

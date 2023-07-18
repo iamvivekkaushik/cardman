@@ -19,10 +19,10 @@ class AxisCCParser(BaseEmailParser):
         card_number = card_number.replace('X', '')
 
         amount = int(float(result[0][1]) * 100)
-        merchant = result[0][2]
+        platform = result[0][2]
 
         transaction.card = cards.filter(card_number__endswith=card_number).first()
         transaction.amount_in_paise = amount
-        transaction.merchant = merchant
+        transaction.platform = platform
 
         super().__init__(transaction)

@@ -7,7 +7,7 @@ from transactions.models import *
 class CardTransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transaction
-        fields = ["id", "amount_in_paise", "time", "merchant", "transaction_type", ]
+        fields = ["id", "amount_in_paise", "time", "platform", "transaction_type", ]
 
 
 class AllTransactionSerializer(serializers.ModelSerializer):

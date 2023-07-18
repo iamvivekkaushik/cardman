@@ -15,10 +15,10 @@ class HdfcCCParser(BaseEmailParser):
         result = re.findall("Card\sending\s(.+?)\sfor\sRs\s(.+?)\sat(.+?)\son", email)
         card_number = result[0][0]
         amount = int(float(result[0][1].replace(',', '')) * 100)
-        merchant = result[0][2]
+        platform = result[0][2]
 
         transaction.card = cards.filter(card_number__endswith=card_number).first()
         transaction.amount_in_paise = amount
-        transaction.merchant = merchant
+        transaction.platform = platform
 
         super().__init__(transaction)

@@ -18,7 +18,7 @@ class IndusindCCParser(BaseEmailParser):
 
         card_number = result[0][0]
         amount = int(float(result[0][1].replace(',', '')) * 100)
-        merchant = result[0][3]
+        platform = result[0][3]
         is_approved = result[0][4] == 'Approved'
 
         if is_approved is False:
@@ -27,6 +27,6 @@ class IndusindCCParser(BaseEmailParser):
 
         transaction.card = cards.filter(card_number__endswith=card_number).first()
         transaction.amount_in_paise = amount
-        transaction.merchant = merchant
+        transaction.platform = platform
 
         super().__init__(transaction)
