@@ -49,13 +49,14 @@ class InboundEmailView(APIView):
                     decoded_message += i
 
             for bank in Bank.objects.all():
-                if bank.alert_email in decoded_message.lower():
+                if bank.alert_email in decoded_message.lower() or bank.alert_email in mail.headers['From'].lower():
                     parser = getattr(
                         importlib.import_module('emails.email_parsers.' + bank.cc_transaction_email_parser),
                         bank.cc_transaction_email_parser
                     )
                     transaction = Transaction()
                     parser(
+                        mail.headers['Subject'],
                         strip_non_ascii(decoded_message).replace('\r\n', '').replace('=', '').replace('>', ''),
                         Card.objects.filter(user=user, bank=bank),
                         transaction

@@ -8,8 +8,8 @@ from transactions.models import Transaction
 
 class HdfcCCParser(BaseEmailParser):
 
-    def __init__(self, email: str, cards: QuerySet(Card), transaction: Transaction):
-        if 'Alert : Update on your HDFC Bank Credit Card' not in email:
+    def __init__(self, subject: str, email: str, cards: QuerySet(Card), transaction: Transaction):
+        if 'Alert : Update on your HDFC Bank Credit Card' not in subject:
             return
 
         result = re.findall("Card\sending\s(.+?)\sfor\sRs\s(.+?)\sat(.+?)\son", email)
