@@ -8,8 +8,8 @@ from transactions.models import Transaction
 
 class HsbcCCParser(BaseEmailParser):
 
-    def __init__(self, email: str, cards: QuerySet(Card), transaction: Transaction):
-        if 'You have used your HSBC Credit Card ending with' not in email:
+    def __init__(self, subject: str, email: str, cards: QuerySet(Card), transaction: Transaction):
+        if 'You have used your HSBC Credit Card ending with' not in subject:
             return
 
         result = re.findall("Credit\scard.*with\s(.+?),.*INR\s(.+?)\s.*payment\sto\s(.+?)\s", email)

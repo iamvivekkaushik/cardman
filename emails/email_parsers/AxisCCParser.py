@@ -8,8 +8,8 @@ from transactions.models import Transaction
 
 class AxisCCParser(BaseEmailParser):
 
-    def __init__(self, email: str, cards: QuerySet(Card), transaction: Transaction):
-        if 'Transaction alert on Axis Bank Credit Card no. ' not in email:
+    def __init__(self, subject: str, email: str, cards: QuerySet(Card), transaction: Transaction):
+        if 'Transaction alert on Axis Bank Credit Card no. ' not in subject:
             return
 
         result = re.findall("Card\sno\.\s(.+?)\sfor\sINR\s(.+?)\sat\s(.+?)\son", email)
