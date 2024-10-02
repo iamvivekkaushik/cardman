@@ -18,7 +18,7 @@ class CardsAdmin(admin.ModelAdmin):
         btn_id = 'copy-card-no'
         return mark_safe(f"""
             <input text="text" id="{btn_id}" value="{obj.card_number}" style="position: absolute; top: -10000px">
-            <a href="#" onclick="document.querySelector(\'#{btn_id}\').select(); document.execCommand(\'copy\');" class="addlink">Copy media url to clipboard</a>
+            <a href="#" onclick="document.querySelector(\'#{btn_id}\').select(); document.execCommand(\'copy\');" class="addlink">Copy card number to clipboard</a>
             """
         )
 
