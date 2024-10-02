@@ -3,7 +3,7 @@ from django.db import models
 from django.db.models import Sum
 from django.utils.translation import gettext_lazy as _
 
-from cards.choices import CARD_TYPE_CHOICES, VISA
+from cards.choices import CARD_ACCOUNT_CHOICES, CARD_TYPE_CHOICES, CREDIT_CARD, VISA
 
 
 class Card(models.Model):
@@ -11,7 +11,9 @@ class Card(models.Model):
     name = models.CharField(max_length=40, default="")
     expiry = models.CharField(max_length=5, null=True)
     cvv = models.CharField(verbose_name=_("CVV"), max_length=3, null=True)
+    account_type = models.CharField(max_length=2, choices=CARD_ACCOUNT_CHOICES, default=CREDIT_CARD)
     type = models.CharField(max_length=4, choices=CARD_TYPE_CHOICES, default=VISA)
+    is_active = models.BooleanField(verbose_name=_("Is Active"), default=True)
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     bank = models.ForeignKey('banks.Bank', on_delete=models.CASCADE)
 
