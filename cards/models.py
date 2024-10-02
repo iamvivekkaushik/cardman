@@ -13,9 +13,11 @@ class Card(models.Model):
     cvv = models.CharField(verbose_name=_("CVV"), max_length=3, null=True)
     account_type = models.CharField(max_length=2, choices=CARD_ACCOUNT_CHOICES, default=CREDIT_CARD)
     type = models.CharField(max_length=4, choices=CARD_TYPE_CHOICES, default=VISA)
+    is_paid = models.BooleanField(verbose_name=_("Is Paid"), default=False)
     is_active = models.BooleanField(verbose_name=_("Is Active"), default=True)
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     bank = models.ForeignKey('banks.Bank', on_delete=models.CASCADE)
+    updated_at = models.DateTimeField(_("Modified At"), auto_now=True)
 
     def get_balance(self):
         cr_sum = self.transaction_set.filter(transaction_type='CR').aggregate(Sum('amount_in_paise'))[
