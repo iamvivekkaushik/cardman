@@ -14,7 +14,7 @@ class CardsAdmin(admin.ModelAdmin):
         'updated_at'
     )
 
-    actions = ['bulk_update_is_paid']
+    actions = ['mark_as_paid', 'mark_as_unpaid']
 
     def options(self, obj):
         btn_id = 'copy-card-no'
