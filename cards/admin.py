@@ -14,6 +14,8 @@ class CardsAdmin(admin.ModelAdmin):
         'updated_at'
     )
 
+    actions = ['bulk_update_is_paid']
+
     def options(self, obj):
         btn_id = 'copy-card-no'
         return mark_safe(f"""
@@ -21,8 +23,17 @@ class CardsAdmin(admin.ModelAdmin):
             <a href="#" onclick="document.querySelector(\'#{btn_id}\').select(); document.execCommand(\'copy\');" class="addlink">Copy card number to clipboard</a>
             """
         )
-
+    
     options.short_description = _('Options')
 
+    def mark_as_paid(self, request, queryset):
+        queryset.update(is_paid=True)
+        self.message_user(request, "Selected cards have been marked as paid.")
+    mark_as_paid.short_description = "Mark selected cards as paid"
+
+    def mark_as_unpaid(self, request, queryset):
+        queryset.update(is_paid=False)
+        self.message_user(request, "Selected cards have been marked as unpaid.")
+    mark_as_unpaid.short_description = "Mark selected cards as unpaid"
 
 admin.site.register(Card, CardsAdmin)
