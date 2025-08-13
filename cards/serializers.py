@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.utils import timezone
 
 from cards.models import *
 
@@ -22,3 +23,19 @@ class CardAddSerializer(serializers.ModelSerializer):
     class Meta:
         model = Card
         exclude = ["user", ]
+
+class CardBillingUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Card
+        fields = ["due_date", "credit_limit", "reward_points", "last_bill_amount"]
+    
+    def update(self, instance, validated_data):
+        # Set billed_at to current timestamp
+        instance.billed_at = timezone.now()
+        
+        # Update the other fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        
+        instance.save()
+        return instance

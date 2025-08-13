@@ -17,6 +17,11 @@ class Card(models.Model):
     is_active = models.BooleanField(verbose_name=_("Is Active"), default=True)
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     bank = models.ForeignKey('banks.Bank', on_delete=models.CASCADE)
+    due_date = models.DateField(verbose_name=_("Due Date"), null=True, blank=True)
+    credit_limit = models.DecimalField(verbose_name=_("Credit Limit"), max_digits=15, decimal_places=2, default=0.00)
+    reward_points = models.IntegerField(verbose_name=_("Reward Points"), default=0)
+    last_bill_amount = models.IntegerField(verbose_name=_("Last Bill Amount"), default=0)
+    billed_at = models.DateTimeField(verbose_name=_("Billed At"), null=True, blank=True)
     updated_at = models.DateTimeField(_("Modified At"), auto_now=True)
 
     def get_balance(self):
