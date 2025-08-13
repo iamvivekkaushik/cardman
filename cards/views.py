@@ -6,7 +6,7 @@ from .serializers import *
 class CardListView(ListAPIView):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = {
-        'bank_name': ['exact'],
+        'bank': ['exact'],
         'card_number': ['exact', 'endswith', 'startswith'],
         'account_type': ['exact'],
         'is_active': ['exact'],

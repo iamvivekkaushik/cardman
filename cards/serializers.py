@@ -9,7 +9,7 @@ class CardSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Card
-        fields = ["id", "card_number", "bank_name", "balance"]
+        fields = ["id", "card_number", "bank", "is_active", "account_type", "is_paid", "bank_name", "balance"]
 
     def get_balance(self, obj):
         return obj.get_balance()
