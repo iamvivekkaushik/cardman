@@ -9,6 +9,7 @@ class CardListView(ListAPIView):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = {
         'bank': ['exact'],
+        'name': ['exact'],
         'card_number': ['exact', 'endswith', 'startswith'],
         'account_type': ['exact'],
         'is_active': ['exact'],
