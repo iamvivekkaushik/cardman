@@ -1,16 +1,19 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+from django.db.models import Sum, Q
 
 from .models import Card
 
 
 class CardsAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'name', 'type', 'bank', 'is_paid', 'updated_at')
+    list_display = ('__str__', 'name', 'is_paid', 'outstanding_amount', 'formatted_last_bill_amount', 'billed_at', 'due_date')
     list_filter = ('bank__name', 'type', 'account_type', 'is_paid', 'is_active')
 
     readonly_fields = (
         'options',
+        'outstanding_amount',
+        'formatted_last_bill_amount',
         'updated_at'
     )
 
@@ -25,6 +28,54 @@ class CardsAdmin(admin.ModelAdmin):
         )
     
     options.short_description = _('Options')
+
+    def outstanding_amount(self, obj):
+        """
+        Calculate outstanding amount from transactions since last billed date (inclusive).
+        Credit transactions are added, Debit transactions are subtracted.
+        """
+        if not obj.billed_at:
+            # If no billing date, return "0"
+            return "₹0.00"
+        
+        # Get transactions from the last billed date (inclusive) onwards
+        transactions = obj.transaction_set.filter(time__gte=obj.billed_at)
+        
+        # Calculate credit total
+        credit_total = transactions.filter(transaction_type='CR').aggregate(
+            total=Sum('amount_in_paise')
+        )['total'] or 0
+        
+        # Calculate debit total  
+        debit_total = transactions.filter(transaction_type='DR').aggregate(
+            total=Sum('amount_in_paise')
+        )['total'] or 0
+        
+        # Outstanding = Credits - Debits (converted to rupees)
+        outstanding_paise = credit_total - debit_total
+        outstanding_rupees = outstanding_paise / 100
+        outstanding_rupees = outstanding_rupees * -1
+        # Format as currency
+        return f"₹{outstanding_rupees:,.2f}"
+    
+    outstanding_amount.short_description = _('Outstanding Amount')
+    outstanding_amount.admin_order_field = 'outstanding_amount'  # Allows column sorting
+
+    def formatted_last_bill_amount(self, obj):
+        """
+        Display last_bill_amount converted from paise to rupees.
+        """
+        if obj.last_bill_amount is None:
+            return "₹0.00"
+        
+        # Convert from paise to rupees
+        amount_rupees = obj.last_bill_amount / 100
+        
+        # Format as currency
+        return f"₹{amount_rupees:,.2f}"
+    
+    formatted_last_bill_amount.short_description = _('Last Bill Amount')
+    formatted_last_bill_amount.admin_order_field = 'last_bill_amount'  # Allows column sorting
 
     def mark_as_paid(self, request, queryset):
         queryset.update(is_paid=True)
