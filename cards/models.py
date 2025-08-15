@@ -31,5 +31,72 @@ class Card(models.Model):
                      'amount_in_paise__sum'] or 0
         return (cr_sum - dr_sum) / 100
 
+    def get_outstanding_amount_paise(self):
+        """
+        Calculate outstanding amount in paise from transactions since last billed date (inclusive).
+        Credit transactions are added, Debit transactions are subtracted.
+        Returns the amount in paise (same logic as admin outstanding_amount function).
+        """
+        if not self.billed_at:
+            return 0
+        
+        # Get transactions from the last billed date (inclusive) onwards
+        transactions = self.transaction_set.filter(time__gte=self.billed_at)
+        
+        # Calculate credit total
+        credit_total = transactions.filter(transaction_type='CR').aggregate(
+            total=Sum('amount_in_paise')
+        )['total'] or 0
+        
+        # Calculate debit total  
+        debit_total = transactions.filter(transaction_type='DR').aggregate(
+            total=Sum('amount_in_paise')
+        )['total'] or 0
+        
+        # Outstanding = Credits - Debits (in paise)
+        outstanding_paise = credit_total - debit_total
+        # Apply the same logic as admin (multiply by -1)
+        outstanding_paise = outstanding_paise * -1
+        
+        return outstanding_paise
+
     def __str__(self):
         return "{0} ({1})".format(self.card_number[-4:], self.bank.name)
+
+    def save(self, *args, **kwargs):
+        """
+        Override save method to create payment transaction when is_paid changes to True.
+        """
+        # Check if this is an update (not a new object)
+        if self.pk:
+            try:
+                old_instance = Card.objects.get(pk=self.pk)
+                # Check if is_paid changed from False to True
+                if not old_instance.is_paid and self.is_paid:
+                    # Check outstanding amount
+                    outstanding_paise = self.get_outstanding_amount_paise()
+
+                    if outstanding_paise > 0:
+                        # Save first to ensure the card state is updated
+                        super().save(*args, **kwargs)
+                        
+                        # Import here to avoid circular imports
+                        from transactions.models import Transaction
+                        from django.utils import timezone
+                        
+                        # Create payment transaction
+                        Transaction.objects.create(
+                            amount_in_paise=self.last_bill_amount,
+                            time=timezone.now(),
+                            platform="System",
+                            description=f"Marked as paid",
+                            card=self,
+                            transaction_type='CR'  # Credit transaction for payment
+                        )
+                        return  # Exit early since we already saved
+                        
+            except Card.DoesNotExist:
+                pass  # Handle edge case where card doesn't exist
+        
+        # Default save behavior
+        super().save(*args, **kwargs)

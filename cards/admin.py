@@ -29,34 +29,8 @@ class CardsAdmin(admin.ModelAdmin):
     
     options.short_description = _('Options')
 
-    def outstanding_amount(self, obj):
-        """
-        Calculate outstanding amount from transactions since last billed date (inclusive).
-        Credit transactions are added, Debit transactions are subtracted.
-        """
-        if not obj.billed_at:
-            # If no billing date, return "0"
-            return "₹0.00"
-        
-        # Get transactions from the last billed date (inclusive) onwards
-        transactions = obj.transaction_set.filter(time__gte=obj.billed_at)
-        
-        # Calculate credit total
-        credit_total = transactions.filter(transaction_type='CR').aggregate(
-            total=Sum('amount_in_paise')
-        )['total'] or 0
-        
-        # Calculate debit total  
-        debit_total = transactions.filter(transaction_type='DR').aggregate(
-            total=Sum('amount_in_paise')
-        )['total'] or 0
-        
-        # Outstanding = Credits - Debits (converted to rupees)
-        outstanding_paise = credit_total - debit_total
-        outstanding_rupees = outstanding_paise / 100
-        outstanding_rupees = outstanding_rupees * -1
-        # Format as currency
-        return f"₹{outstanding_rupees:,.2f}"
+    def outstanding_amount(self, obj):        
+        return f"₹{(obj.get_outstanding_amount_paise()/100):,.2f}"
     
     outstanding_amount.short_description = _('Outstanding Amount')
     outstanding_amount.admin_order_field = 'outstanding_amount'  # Allows column sorting
