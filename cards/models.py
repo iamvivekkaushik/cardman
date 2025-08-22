@@ -33,31 +33,33 @@ class Card(models.Model):
 
     def get_outstanding_amount_paise(self):
         """
-        Calculate outstanding amount in paise from transactions since last billed date (inclusive).
+        Calculate outstanding amount in paise from transactions between 2nd last and last billed date (inclusive of start).
+        The 2nd last billing date is the same day of the previous month as billed_at.
         Credit transactions are added, Debit transactions are subtracted.
         Returns the amount in paise (same logic as admin outstanding_amount function).
         """
         if not self.billed_at:
             return 0
         
-        # Get transactions from the last billed date (inclusive) onwards
-        transactions = self.transaction_set.filter(time__gte=self.billed_at)
+        billed_at = self.billed_at
+        year = billed_at.year
+        if billed_at.month > 1:
+            month = billed_at.month - 1
+        else:
+            month = 12
+            year = year - 1
+        day = billed_at.day
         
-        # Calculate credit total
+        second_last_billed_at = billed_at.replace(year=year, month=month, day=day)
+        transactions = self.transaction_set.filter(time__gte=second_last_billed_at, time__lt=self.billed_at)
         credit_total = transactions.filter(transaction_type='CR').aggregate(
             total=Sum('amount_in_paise')
         )['total'] or 0
-        
-        # Calculate debit total  
         debit_total = transactions.filter(transaction_type='DR').aggregate(
             total=Sum('amount_in_paise')
         )['total'] or 0
-        
-        # Outstanding = Credits - Debits (in paise)
         outstanding_paise = credit_total - debit_total
-        # Apply the same logic as admin (multiply by -1)
         outstanding_paise = outstanding_paise * -1
-        
         return outstanding_paise
 
     def __str__(self):

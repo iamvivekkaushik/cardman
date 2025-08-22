@@ -29,7 +29,7 @@ class CardsAdmin(admin.ModelAdmin):
     
     options.short_description = _('Options')
 
-    def outstanding_amount(self, obj):        
+    def outstanding_amount(self, obj):
         return f"₹{(obj.get_outstanding_amount_paise()/100):,.2f}"
     
     outstanding_amount.short_description = _('Outstanding Amount')
