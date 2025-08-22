@@ -51,7 +51,7 @@ class Card(models.Model):
         day = billed_at.day
         
         second_last_billed_at = billed_at.replace(year=year, month=month, day=day)
-        transactions = self.transaction_set.filter(time__gte=second_last_billed_at, time__lt=self.billed_at)
+        transactions = self.transaction_set.filter(time__gte=second_last_billed_at)
         credit_total = transactions.filter(transaction_type='CR').aggregate(
             total=Sum('amount_in_paise')
         )['total'] or 0
