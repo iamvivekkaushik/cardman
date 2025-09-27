@@ -27,11 +27,10 @@ class CardAddSerializer(serializers.ModelSerializer):
 class CardBillingUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Card
-        fields = ["due_date", "credit_limit", "reward_points", "last_bill_amount"]
+        fields = ["due_date", "credit_limit", "reward_points", "last_bill_amount", 'billed_at']
     
     def update(self, instance, validated_data):
         # Set billed_at to current timestamp
-        instance.billed_at = timezone.now()
         if validated_data.get('last_bill_amount') > 0:
             instance.is_paid = False
         else:
